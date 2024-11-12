@@ -68,27 +68,26 @@ export default function BarcodeListScreen() {
   };
 
   const exportToExcel = async () => {
-    if (scannedData.length === 0) {
+    if (filteredData.length === 0) {
       Alert.alert("Aviso", "No hay datos para exportar.");
       return;
     }
 
-    const workSheet = XLSX.utils.json_to_sheet(scannedData);
+    const workSheet = XLSX.utils.json_to_sheet(filteredData);
     const workBook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workBook, workSheet, "Barcodes");
     const excelFile = XLSX.write(workBook, {
       bookType: "xlsx",
-      type: "binary",
+      type: "base64",
     });
 
     const dateForFile = filterDate || new Date().toISOString().split("T")[0];
-    const fileUri = `${FileSystem.documentDirectory}barcodes_${dateForFile}.csv`;
+    const fileUri = `${FileSystem.documentDirectory}barcodes_${dateForFile}.xlsx`;
 
     await FileSystem.writeAsStringAsync(fileUri, excelFile, {
       encoding: FileSystem.EncodingType.Base64,
     });
 
-    // Solicitar permisos y guardar en la galería
     const { status } = await MediaLibrary.requestPermissionsAsync();
     if (status === "granted") {
       const asset = await MediaLibrary.createAssetAsync(fileUri);
