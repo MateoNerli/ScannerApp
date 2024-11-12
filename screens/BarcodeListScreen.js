@@ -80,13 +80,18 @@ export default function BarcodeListScreen() {
       type: "binary",
     });
 
-    const fileUri =
-      FileSystem.documentDirectory + `barcodes_${scannedData}.xlsx`;
+    // Usa la fecha filtrada o la fecha actual si no se ha seleccionado ninguna.
+    const dateForFile = filterDate || new Date().toISOString().split("T")[0];
+    const fileUri = `${FileSystem.documentDirectory}barcodes_${dateForFile}.xlsx`;
+
     await FileSystem.writeAsStringAsync(fileUri, excelFile, {
       encoding: FileSystem.EncodingType.Base64,
     });
 
-    Alert.alert("Exportación exitosa", "El archivo Excel se ha guardado.");
+    Alert.alert(
+      "Exportación exitosa",
+      `El archivo Excel se ha guardado en: ${fileUri}`
+    );
   };
 
   const handleDateChange = (event, selectedDate) => {
@@ -138,7 +143,7 @@ export default function BarcodeListScreen() {
               Código: <Text style={styles.code}>{item.code}</Text>
             </Text>
             <Text style={styles.cardText}>
-              Fecha: <Text style={styles.date}>{item.date}</Text>
+              Fecha: <Text style={styles.date}>{item.date.split("T")[0]}</Text>
             </Text>
           </View>
         )}
