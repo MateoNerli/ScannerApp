@@ -11,6 +11,7 @@ import * as FileSystem from "expo-file-system";
 import * as XLSX from "xlsx";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as MediaLibrary from "expo-media-library";
 
 export default function BarcodeListScreen() {
   const [scannedData, setScannedData] = useState([]);
@@ -80,18 +81,25 @@ export default function BarcodeListScreen() {
       type: "binary",
     });
 
-    // Usa la fecha filtrada o la fecha actual si no se ha seleccionado ninguna.
     const dateForFile = filterDate || new Date().toISOString().split("T")[0];
-    const fileUri = `${FileSystem.documentDirectory}barcodes_${dateForFile}.xlsx`;
+    const fileUri = `${FileSystem.documentDirectory}barcodes_${dateForFile}.csv`;
 
     await FileSystem.writeAsStringAsync(fileUri, excelFile, {
       encoding: FileSystem.EncodingType.Base64,
     });
 
-    Alert.alert(
-      "Exportación exitosa",
-      `El archivo Excel se ha guardado en: ${fileUri}`
-    );
+    // Solicitar permisos y guardar en la galería
+    const { status } = await MediaLibrary.requestPermissionsAsync();
+    if (status === "granted") {
+      const asset = await MediaLibrary.createAssetAsync(fileUri);
+      await MediaLibrary.createAlbumAsync("Excel Files", asset, false);
+      Alert.alert("Éxito", "Archivo exportado y guardado");
+    } else {
+      Alert.alert(
+        "Error",
+        "No se otorgaron permisos para acceder a la galería."
+      );
+    }
   };
 
   const handleDateChange = (event, selectedDate) => {
