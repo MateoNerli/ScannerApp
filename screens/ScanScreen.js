@@ -74,7 +74,7 @@ export default function ScanScreen() {
           : [newEntry];
 
         await saveData("scanned_codes", updatedCodes); // Save the data
-        alert(`Código guardado: ${scannedCode} en ${currentDate}`);
+        alert(`Código guardado: ${scannedCode}`);
       }
     }
 
@@ -84,10 +84,21 @@ export default function ScanScreen() {
   };
 
   if (hasPermission === null) {
-    return <Text>Esperando permisos...</Text>;
+    return (
+      <View style={styles.centeredContainer}>
+        <Text style={styles.loadingText}>Esperando permisos...</Text>
+      </View>
+    );
   }
+
   if (hasPermission === false) {
-    return <Text>No se tienen permisos para usar la cámara</Text>;
+    return (
+      <View style={styles.centeredContainer}>
+        <Text style={styles.errorText}>
+          No se tienen permisos para usar la cámara
+        </Text>
+      </View>
+    );
   }
 
   return (
@@ -138,6 +149,24 @@ export default function ScanScreen() {
 }
 
 const styles = StyleSheet.create({
+  centeredContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f8f9fa", // Fondo claro para que se vea bien el contenido
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 18,
+    color: "#6200ee", // Color de texto que combina con el indicador
+  },
+  errorText: {
+    fontSize: 20,
+    color: "#d32f2f", // Rojo para indicar error
+    fontWeight: "bold",
+    textAlign: "center",
+    paddingHorizontal: 20,
+  },
   container: {
     flex: 1,
     backgroundColor: "#000",
